@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hava Durumu Uygulaması</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="weather-app">
+      <div class="search-box">
+        <div class="autocomplete-container">
+          <input type="text" id="city-input" placeholder="Şehir adı girin...">
+          <div class="autocomplete-list" id="autocomplete-list"></div>
+        </div>
+        <button id="search-btn"><i class="fas fa-search"></i></button>
+        <button id="location-btn" title="Konumumu kullan"><i class="fas fa-map-marker-alt"></i></button>
+      </div>
+      
+      <div class="weather-info" id="weather-info">
+        <div class="card-container">
+          <div class="card">
+            <div class="card-front">
+              <div class="city-date">
+                <div class="city-map-container">
+                  <h2 id="city">Şehir</h2>
+                  <button id="show-map-btn" title="Haritada Göster"><i class="fas fa-map"></i></button>
+                </div>
+                <p id="date">Tarih</p>
+              </div>
+              
+              <div class="weather-details">
+                <div class="temperature">
+                  <h1 id="temp">--°C</h1>
+                  <div class="feels-like">
+                    <span>Hissedilen: </span><span id="feels-like">--°C</span>
+                  </div>
+                </div>
+                
+                <div class="weather-icon">
+                  <img id="weather-icon" src="" alt="Hava Durumu İkonu">
+                  <p id="weather-desc">Durum</p>
+                </div>
+              </div>
+              
+              <div class="additional-info">
+                <div class="info-item">
+                  <i class="fas fa-wind"></i>
+                  <span>Rüzgar: </span><span id="wind">-- km/h</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-tint"></i>
+                  <span>Nem: </span><span id="humidity">--%</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-compress-arrows-alt"></i>
+                  <span>Basınç: </span><span id="pressure">-- hPa</span>
+                </div>
+              </div>
+              <!-- Extra info container will be added here by JavaScript -->
+            </div>
+            
+            <div class="card-back">
+              <div class="map-container">
+                <button id="back-to-weather-btn"><i class="fas fa-arrow-left"></i> Hava Durumuna Dön</button>
+                <div id="map"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="error-message" id="error-message">
+          <p><i class="fas fa-exclamation-triangle"></i> Şehir bulunamadı veya bir hata oluştu!</p>
+          <p class="error-help">Lütfen şehir adını doğru yazdığınızdan emin olun veya başka bir şehir deneyin.</p>
+        </div>
+        
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Hava durumu bilgileri alınıyor...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Maps API -->
+  <script src="js/app.js"></script>
+  <script>
+    // Google Maps API yükleme fonksiyonu
+    function loadGoogleMapsScript() {
+      // İlk olarak initMap fonksiyonunun tanımlı olduğundan emin ol
+      if (typeof window.initMap !== 'function') {
+        console.error('initMap fonksiyonu henüz tanımlanmadı!');
+        setTimeout(loadGoogleMapsScript, 100); // 100ms sonra tekrar dene
+        return;
+      }
+      
+      const script = document.createElement('script');
+      // Google Maps API anahtarı ile harita yükleme
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDw2tqWxldIJgur7Iuw8ErU3J5DIO8h0yA&v=weekly&callback=initMap";
+      script.async = true;
+      script.defer = true;
+      script.onerror = function() {
+        console.error('Google Maps API yüklenemedi! API anahtarı veya internet bağlantısını kontrol edin.');
+        alert('Google Maps yüklenemedi. Lütfen internet bağlantınızı kontrol edin.');
+      };
+      script.onload = function() {
+        console.log('Google Maps API başarıyla yüklendi');
+      };
+      document.body.appendChild(script);
+      
+      console.log("Google Maps API yükleniyor...");
+    }
+    
+    // DOM ve JS dosyası yüklendikten sonra Maps API'sini yükle
+    window.addEventListener('load', () => {
+      setTimeout(loadGoogleMapsScript, 100); // Kısa bir bekleme ile app.js'in tamamen yüklenmesini sağla
+    });
+  </script>
+</body>
+</html>
