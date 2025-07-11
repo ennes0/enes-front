@@ -90,6 +90,142 @@ async function fetchWeather(city) {
       console.error("❌ Rüzgar verileri API yanıtında bulunamadı!");
     }
     
+    // Sıcaklık verilerini özellikle kontrol et
+    if (data.main) {
+      console.log("✅ Ana hava durumu verileri mevcut:", data.main);
+      console.log(`✅ Şu anki sıcaklık: ${data.main.temp}°C`);
+      
+      if (data.main.temp_min !== undefined) {
+        console.log(`✅ Minimum sıcaklık: ${data.main.temp_min}°C`);
+      } else {
+        console.warn("⚠️ Minimum sıcaklık verisi eksik");
+      }
+      
+      if (data.main.temp_max !== undefined) {
+        console.log(`✅ Maksimum sıcaklık: ${data.main.temp_max}°C`);
+      } else {
+        console.warn("⚠️ Maksimum sıcaklık verisi eksik");
+      }
+      
+      if (data.main.feels_like !== undefined) {
+        console.log(`✅ Hissedilen sıcaklık: ${data.main.feels_like}°C`);
+      }
+      
+      if (data.main.humidity !== undefined) {
+        console.log(`✅ Nem: ${data.main.humidity}%`);
+      }
+      
+      if (data.main.pressure !== undefined) {
+        console.log(`✅ Basınç: ${data.main.pressure} hPa`);
+      }
+    } else {
+      console.error("❌ Ana hava durumu verileri (main) API yanıtında bulunamadı!");
+    }
+    
+    // Görüş mesafesi verilerini kontrol et
+    if (data.visibility !== undefined) {
+      const visibilityKm = (data.visibility / 1000).toFixed(1);
+      console.log(`✅ Görüş mesafesi: ${data.visibility} m (${visibilityKm} km)`);
+    } else {
+      console.warn("⚠️ Görüş mesafesi verisi eksik");
+    }
+    
+    // Bulutluluk verilerini kontrol et
+    if (data.clouds) {
+      console.log("✅ Bulutluluk verileri mevcut:", data.clouds);
+      if (data.clouds.all !== undefined) {
+        console.log(`✅ Bulutluluk oranı: ${data.clouds.all}%`);
+      } else {
+        console.warn("⚠️ Bulutluluk oranı verisi eksik");
+      }
+    } else {
+      console.warn("⚠️ Bulutluluk verileri eksik");
+    }
+    
+    // Güneş doğumu ve batımı verilerini kontrol et
+    if (data.sys) {
+      console.log("✅ Sistem verileri mevcut:", data.sys);
+      if (data.sys.sunrise !== undefined) {
+        const sunriseDate = new Date(data.sys.sunrise * 1000);
+        console.log(`✅ Gün doğumu: ${data.sys.sunrise} (${sunriseDate.toLocaleTimeString('tr-TR')})`);
+      } else {
+        console.warn("⚠️ Gün doğumu verisi eksik");
+      }
+      
+      if (data.sys.sunset !== undefined) {
+        const sunsetDate = new Date(data.sys.sunset * 1000);
+        console.log(`✅ Gün batımı: ${data.sys.sunset} (${sunsetDate.toLocaleTimeString('tr-TR')})`);
+      } else {
+        console.warn("⚠️ Gün batımı verisi eksik");
+      }
+      
+      if (data.sys.country !== undefined) {
+        console.log(`✅ Ülke kodu: ${data.sys.country}`);
+      }
+    } else {
+      console.warn("⚠️ Sistem verileri eksik");
+    }
+    
+    // Yağış verilerini kontrol et
+    if (data.rain) {
+      console.log("✅ Yağmur verileri mevcut:", data.rain);
+      if (data.rain["1h"] !== undefined) {
+        console.log(`✅ Son 1 saatteki yağmur: ${data.rain["1h"]} mm`);
+      }
+      if (data.rain["3h"] !== undefined) {
+        console.log(`✅ Son 3 saatteki yağmur: ${data.rain["3h"]} mm`);
+      }
+    } else {
+      console.log("ℹ️ Yağmur verisi yok (normal durum)");
+    }
+    
+    if (data.snow) {
+      console.log("✅ Kar verileri mevcut:", data.snow);
+      if (data.snow["1h"] !== undefined) {
+        console.log(`✅ Son 1 saatteki kar: ${data.snow["1h"]} mm`);
+      }
+      if (data.snow["3h"] !== undefined) {
+        console.log(`✅ Son 3 saatteki kar: ${data.snow["3h"]} mm`);
+      }
+    } else {
+      console.log("ℹ️ Kar verisi yok (normal durum)");
+    }
+    
+    // Hava durumu açıklama verilerini kontrol et
+    if (data.weather && data.weather.length > 0) {
+      console.log("✅ Hava durumu açıklama verileri mevcut:", data.weather);
+      const weather = data.weather[0];
+      console.log(`✅ Ana hava durumu: ${weather.main}`);
+      console.log(`✅ Hava durumu açıklaması: ${weather.description}`);
+      console.log(`✅ Hava durumu ikonu: ${weather.icon}`);
+      console.log(`✅ Hava durumu ID: ${weather.id}`);
+    } else {
+      console.error("❌ Hava durumu açıklama verileri eksik");
+    }
+    
+    // Koordinat verilerini kontrol et
+    if (data.coord) {
+      console.log("✅ Koordinat verileri mevcut:", data.coord);
+      console.log(`✅ Enlem (Latitude): ${data.coord.lat}`);
+      console.log(`✅ Boylam (Longitude): ${data.coord.lon}`);
+    } else {
+      console.warn("⚠️ Koordinat verileri eksik");
+    }
+    
+    // Zaman dilimi verilerini kontrol et
+    if (data.timezone !== undefined) {
+      console.log(`✅ Zaman dilimi offset: ${data.timezone} saniye (UTC${data.timezone >= 0 ? '+' : ''}${data.timezone / 3600} saat)`);
+    } else {
+      console.warn("⚠️ Zaman dilimi verisi eksik");
+    }
+    
+    // Şehir ID'sini kontrol et
+    if (data.id !== undefined) {
+      console.log(`✅ Şehir ID: ${data.id}`);
+    } else {
+      console.warn("⚠️ Şehir ID verisi eksik");
+    }
+    
     return data;
   } catch (error) {
     console.error("Hava durumu sorgusu hatası:", error);
@@ -106,7 +242,11 @@ function displayWeather(data, originalSearchName = null) {
   }
   
   try {
-    console.log("Tam API yanıtı:", data); // Tam yanıtı konsola yaz (geliştirme için)
+    console.log("🔍 === TAM API YANITI İNCELEMESİ ===");
+    console.log("Tam API yanıtı objesi:", data);
+    console.log("API yanıtı JSON:", JSON.stringify(data, null, 2));
+    console.log("API yanıtının anahtarları:", Object.keys(data));
+    console.log("🔍 === API YANITI İNCELEMESİ TAMAMLANDI ===");
     
     // Tarih güncelleme
     const currentDate = new Date();
@@ -187,6 +327,129 @@ function displayWeather(data, originalSearchName = null) {
       pressureElement.textContent = "Basınç verisi yok";
       console.warn("⚠️ Basınç verisi API yanıtında bulunamadı");
     }
+    
+    // Detaylı hava durumu verilerini loglama
+    console.log("🌤️ === DETAYLI HAVA DURUMU VERİLERİ KONTROLÜ ===");
+    
+    // Bulutluluk verilerini kontrol et
+    if (data.clouds) {
+      console.log("✅ Bulutluluk verileri mevcut:", data.clouds);
+      if (data.clouds.all !== undefined) {
+        console.log(`✅ Bulutluluk oranı: ${data.clouds.all}%`);
+      } else {
+        console.warn("⚠️ Bulutluluk oranı verisi eksik");
+      }
+    } else {
+      console.warn("⚠️ Bulutluluk verileri API yanıtında bulunamadı");
+    }
+    
+    // Görüş mesafesi verilerini kontrol et
+    if (data.visibility !== undefined) {
+      console.log(`✅ Görüş mesafesi: ${data.visibility} metre (${(data.visibility / 1000).toFixed(1)} km)`);
+    } else {
+      console.warn("⚠️ Görüş mesafesi verisi API yanıtında bulunamadı");
+    }
+    
+    // Sistem verileri (ülke, gün doğumu/batımı) kontrol et
+    if (data.sys) {
+      console.log("✅ Sistem verileri mevcut:", data.sys);
+      
+      if (data.sys.country) {
+        console.log(`✅ Ülke kodu: ${data.sys.country}`);
+      }
+      
+      if (data.sys.sunrise && data.sys.sunset) {
+        const sunrise = new Date(data.sys.sunrise * 1000);
+        const sunset = new Date(data.sys.sunset * 1000);
+        console.log(`✅ Gün doğumu: ${sunrise.toLocaleTimeString('tr-TR')}`);
+        console.log(`✅ Gün batımı: ${sunset.toLocaleTimeString('tr-TR')}`);
+      } else {
+        console.warn("⚠️ Gün doğumu/batımı verileri eksik");
+      }
+    } else {
+      console.warn("⚠️ Sistem verileri API yanıtında bulunamadı");
+    }
+    
+    // Hava durumu açıklaması ve ikonu kontrol et
+    if (data.weather && data.weather.length > 0) {
+      console.log("✅ Hava durumu verileri mevcut:", data.weather);
+      const weather = data.weather[0];
+      
+      if (weather.main) {
+        console.log(`✅ Ana hava durumu: ${weather.main}`);
+      }
+      
+      if (weather.description) {
+        console.log(`✅ Hava durumu açıklaması: ${weather.description}`);
+      }
+      
+      if (weather.icon) {
+        console.log(`✅ Hava durumu ikonu: ${weather.icon}`);
+      }
+      
+      if (weather.id) {
+        console.log(`✅ Hava durumu ID: ${weather.id}`);
+      }
+    } else {
+      console.error("❌ Hava durumu açıklaması verileri API yanıtında bulunamadı");
+    }
+    
+    // Yağış verileri kontrol et
+    if (data.rain) {
+      console.log("✅ Yağmur verileri mevcut:", data.rain);
+      if (data.rain["1h"] !== undefined) {
+        console.log(`✅ Son 1 saatte yağmur: ${data.rain["1h"]} mm`);
+      }
+      if (data.rain["3h"] !== undefined) {
+        console.log(`✅ Son 3 saatte yağmur: ${data.rain["3h"]} mm`);
+      }
+    } else {
+      console.log("ℹ️ Yağmur verisi yok (normal durum)");
+    }
+    
+    if (data.snow) {
+      console.log("✅ Kar verileri mevcut:", data.snow);
+      if (data.snow["1h"] !== undefined) {
+        console.log(`✅ Son 1 saatte kar: ${data.snow["1h"]} mm`);
+      }
+      if (data.snow["3h"] !== undefined) {
+        console.log(`✅ Son 3 saatte kar: ${data.snow["3h"]} mm`);
+      }
+    } else {
+      console.log("ℹ️ Kar verisi yok (normal durum)");
+    }
+    
+    // Koordinat verileri kontrol et
+    if (data.coord) {
+      console.log("✅ Koordinat verileri mevcut:", data.coord);
+      console.log(`✅ Enlem (Latitude): ${data.coord.lat}`);
+      console.log(`✅ Boylam (Longitude): ${data.coord.lon}`);
+    } else {
+      console.warn("⚠️ Koordinat verileri API yanıtında bulunamadı");
+    }
+    
+    // Zaman dilimi verisi kontrol et
+    if (data.timezone !== undefined) {
+      console.log(`✅ Zaman dilimi offset: ${data.timezone} saniye (UTC${data.timezone >= 0 ? '+' : ''}${data.timezone / 3600} saat)`);
+    } else {
+      console.warn("⚠️ Zaman dilimi verisi API yanıtında bulunamadı");
+    }
+    
+    // Şehir ID'si kontrol et
+    if (data.id) {
+      console.log(`✅ Şehir ID: ${data.id}`);
+    } else {
+      console.warn("⚠️ Şehir ID verisi API yanıtında bulunamadı");
+    }
+    
+    // Şehir adı kontrol et
+    if (data.name) {
+      console.log(`✅ Şehir adı: ${data.name}`);
+    } else {
+      console.warn("⚠️ Şehir adı verisi API yanıtında bulunamadı");
+    }
+    
+    console.log("🌤️ === DETAYLI VERİ KONTROLÜ TAMAMLANDI ===");
     
     // Yeni hava durumu detaylarını ekle
     updateExtraWeatherInfo(data);
@@ -289,22 +552,47 @@ function updateExtraWeatherInfo(data) {
     snowElement.parentElement.style.display = "none";
   }
   
-  // Min-max sıcaklık (büyük şehirlerde farklılık gösterebilir)
-  // API dokümantasyonuna göre bunlar isteğe bağlı parametrelerdir
+  // Min-max sıcaklık - OpenWeatherMap API'sinden doğru şekilde al
   const tempMinMaxElement = document.getElementById('temp-min-max');
-  if (data.main.temp_min !== undefined && data.main.temp_max !== undefined) {
+  
+  console.log("Min-Max sıcaklık verileri kontrolü:", {
+    temp_min: data.main?.temp_min,
+    temp_max: data.main?.temp_max,
+    temp: data.main?.temp,
+    mainObject: data.main
+  });
+  
+  if (data.main && data.main.temp_min !== undefined && data.main.temp_max !== undefined) {
     const tempMin = Math.round(data.main.temp_min);
     const tempMax = Math.round(data.main.temp_max);
+    const currentTemp = Math.round(data.main.temp);
     
-    // Min ve max değerleri farklı ise göster
-    if (tempMin !== tempMax) {
-      tempMinMaxElement.textContent = `${tempMin}°C - ${tempMax}°C`;
-      tempMinMaxElement.parentElement.style.display = "flex";
-    } else {
-      tempMinMaxElement.parentElement.style.display = "none";
+    console.log(`Min-Max sıcaklık değerleri: Min: ${tempMin}°C, Max: ${tempMax}°C, Şu anki: ${currentTemp}°C`);
+    
+    // Min-max değerlerini her zaman göster (farklı olup olmamasına bakılmaksızın)
+    tempMinMaxElement.textContent = `${tempMin}°C - ${tempMax}°C`;
+    tempMinMaxElement.parentElement.style.display = "flex";
+    
+    // Eğer min-max değerleri güncel sıcaklıkla mantıklı değilse uyar
+    if (tempMin > currentTemp || tempMax < currentTemp) {
+      console.warn(`⚠️ Min-Max değerleri tutarsız: Min(${tempMin}) veya Max(${tempMax}) şu anki sıcaklıkla (${currentTemp}) uyumsuz`);
+    }
+    
+    // Min ve max aynıysa özel durum için log
+    if (tempMin === tempMax) {
+      console.log("ℹ️ Min ve Max sıcaklık aynı değerde");
     }
   } else {
-    tempMinMaxElement.parentElement.style.display = "none";
+    tempMinMaxElement.textContent = "Veri yok";
+    tempMinMaxElement.parentElement.style.display = "flex";
+    console.warn("⚠️ Min-Max sıcaklık verileri API yanıtında bulunamadı");
+    
+    // API yanıtının main objesini kontrol et
+    if (!data.main) {
+      console.error("❌ API yanıtında 'main' objesi bulunamadı");
+    } else {
+      console.log("📋 Mevcut main objesi anahtarları:", Object.keys(data.main));
+    }
   }
 }
 
@@ -464,6 +752,18 @@ async function fetchWeatherById(cityId) {
       console.warn("⚠️ Rüzgar verileri (ID ile) bulunamadı");
     }
     
+    // ID bazlı sorguda sıcaklık verilerini kontrol et
+    if (data.main) {
+      console.log("✅ Sıcaklık verileri (ID ile) mevcut:", {
+        temp: data.main.temp,
+        temp_min: data.main.temp_min,
+        temp_max: data.main.temp_max,
+        feels_like: data.main.feels_like
+      });
+    } else {
+      console.warn("⚠️ Ana sıcaklık verileri (ID ile) bulunamadı");
+    }
+    
     return data;
   } catch (error) {
     console.error("Hata:", error);
@@ -497,6 +797,18 @@ async function fetchWeatherByCoordinates(lat, lon) {
       console.log("✅ Rüzgar verileri (koordinat ile) mevcut:", data.wind);
     } else {
       console.warn("⚠️ Rüzgar verileri (koordinat ile) bulunamadı");
+    }
+    
+    // Koordinat bazlı sorguda sıcaklık verilerini kontrol et
+    if (data.main) {
+      console.log("✅ Sıcaklık verileri (koordinat ile) mevcut:", {
+        temp: data.main.temp,
+        temp_min: data.main.temp_min,
+        temp_max: data.main.temp_max,
+        feels_like: data.main.feels_like
+      });
+    } else {
+      console.warn("⚠️ Ana sıcaklık verileri (koordinat ile) bulunamadı");
     }
     
     return data;
@@ -1297,7 +1609,52 @@ function testWindConversion() {
   console.log("=== Test Tamamlandı ===");
 }
 
+// API testi fonksiyonu - gerçek API çağrısı yaparak verileri kontrol eder
+async function testApiData() {
+  console.log("=== API Veri Testi Başlatılıyor ===");
+  
+  try {
+    // Test şehirleri
+    const testCities = ['Istanbul', 'Ankara', 'London'];
+    
+    for (const city of testCities) {
+      console.log(`\n--- ${city} için API testi ---`);
+      const data = await fetchWeather(city);
+      
+      if (data) {
+        console.log(`✅ ${city} API başarılı`);
+        console.log(`📊 Şu anki sıcaklık: ${data.main?.temp}°C`);
+        console.log(`🌡️ Min sıcaklık: ${data.main?.temp_min}°C`);
+        console.log(`🌡️ Max sıcaklık: ${data.main?.temp_max}°C`);
+        console.log(`💨 Rüzgar hızı: ${data.wind?.speed} m/s`);
+        
+        // Min-max mantık kontrolü
+        if (data.main?.temp_min !== undefined && data.main?.temp_max !== undefined && data.main?.temp !== undefined) {
+          const min = data.main.temp_min;
+          const max = data.main.temp_max;
+          const current = data.main.temp;
+          
+          if (min <= current && current <= max) {
+            console.log(`✅ Min-Max değerleri mantıklı: ${min}°C ≤ ${current}°C ≤ ${max}°C`);
+          } else {
+            console.log(`⚠️ Min-Max değerleri anormal: Min=${min}°C, Şu anki=${current}°C, Max=${max}°C`);
+          }
+        } else {
+          console.log(`❌ Min-Max veya şu anki sıcaklık verisi eksik`);
+        }
+      } else {
+        console.log(`❌ ${city} API başarısız`);
+      }
+    }
+  } catch (error) {
+    console.error("API test hatası:", error);
+  }
+  
+  console.log("\n=== API Veri Testi Tamamlandı ===");
+}
+
 // Geliştirme amaçlı test fonksiyonunu çalıştır (isteğe bağlı)
-// Sayfa yüklendiğinde test yapmak için aşağıdaki satırın başındaki // işaretini kaldırın
+// Sayfa yüklendiğinde test yapmak için aşağıdaki satırların başındaki // işaretini kaldırın
 // setTimeout(testWindConversion, 1000);
+// setTimeout(testApiData, 2000); // API testini 2 saniye sonra çalıştır
 
