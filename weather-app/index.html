@@ -19,13 +19,48 @@
         <button id="location-btn" title="Konumumu kullan"><i class="fas fa-map-marker-alt"></i></button>
       </div>
       
+      <!-- Favorites Section -->
+      <div class="favorites-section" id="favorites-section">
+        <h3><i class="fas fa-star"></i> Favori Şehirler</h3>
+        <div class="favorites-list" id="favorites-list">
+          <div class="favorite-card" data-city="İstanbul" data-id="745044">
+            <button class="remove-favorite" title="Favorilerden Çıkar"><i class="fas fa-times"></i></button>
+            <div class="card-weather-icon">
+              <i class="fas fa-sun"></i>
+            </div>
+            <div class="card-city-name">İstanbul</div>
+            <div class="card-temperature">22°C</div>
+            <div class="card-description">Güneşli</div>
+          </div>
+          <div class="favorite-card" data-city="Ankara" data-id="323786">
+            <button class="remove-favorite" title="Favorilerden Çıkar"><i class="fas fa-times"></i></button>
+            <div class="card-weather-icon">
+              <i class="fas fa-cloud"></i>
+            </div>
+            <div class="card-city-name">Ankara</div>
+            <div class="card-temperature">18°C</div>
+            <div class="card-description">Bulutlu</div>
+          </div>
+          <div class="favorite-card" data-city="İzmir" data-id="311044">
+            <button class="remove-favorite" title="Favorilerden Çıkar"><i class="fas fa-times"></i></button>
+            <div class="card-weather-icon">
+              <i class="fas fa-cloud-rain"></i>
+            </div>
+            <div class="card-city-name">İzmir</div>
+            <div class="card-temperature">25°C</div>
+            <div class="card-description">Yağmurlu</div>
+          </div>
+        </div>
+      </div>
+      
       <div class="weather-info" id="weather-info">
         <div class="card-container">
           <div class="card">
             <div class="card-front">
               <div class="city-date">
                 <div class="city-map-container">
-                  <h2 id="city">Şehir</h2>
+                  <h2 id="city" data-city-id="" data-country="">Şehir</h2>
+                  <button id="add-to-favorites-btn" title="Favorilere Ekle"><i class="far fa-star"></i></button>
                   <button id="show-map-btn" title="Haritada Göster"><i class="fas fa-map"></i></button>
                 </div>
                 <p id="date">Tarih</p>
@@ -84,39 +119,8 @@
     </div>
   </div>
 
-  <!-- Google Maps API -->
+ 
+  <script src="js/favorites.js"></script>
   <script src="js/app.js"></script>
-  <script>
-    // Google Maps API yükleme fonksiyonu
-    function loadGoogleMapsScript() {
-      // İlk olarak initMap fonksiyonunun tanımlı olduğundan emin ol
-      if (typeof window.initMap !== 'function') {
-        console.error('initMap fonksiyonu henüz tanımlanmadı!');
-        setTimeout(loadGoogleMapsScript, 100); // 100ms sonra tekrar dene
-        return;
-      }
-      
-      const script = document.createElement('script');
-      // Google Maps API anahtarı ile harita yükleme
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDw2tqWxldIJgur7Iuw8ErU3J5DIO8h0yA&v=weekly&callback=initMap";
-      script.async = true;
-      script.defer = true;
-      script.onerror = function() {
-        console.error('Google Maps API yüklenemedi! API anahtarı veya internet bağlantısını kontrol edin.');
-        alert('Google Maps yüklenemedi. Lütfen internet bağlantınızı kontrol edin.');
-      };
-      script.onload = function() {
-        console.log('Google Maps API başarıyla yüklendi');
-      };
-      document.body.appendChild(script);
-      
-      console.log("Google Maps API yükleniyor...");
-    }
-    
-    // DOM ve JS dosyası yüklendikten sonra Maps API'sini yükle
-    window.addEventListener('load', () => {
-      setTimeout(loadGoogleMapsScript, 100); // Kısa bir bekleme ile app.js'in tamamen yüklenmesini sağla
-    });
-  </script>
 </body>
 </html>

@@ -1,15 +1,13 @@
-// API anahtarı
 const apiKey = "1ab5083c1ad45e73e3a6fecc3f343f32";
-// OpenWeatherMap dokümanlarına uygun API URL'leri
 const apiBaseUrl = "https://api.openweathermap.org/data/2.5";
 const geoBaseUrl = "https://api.openweathermap.org/geo/1.0";
-// Standart parametreler
+
+
 const defaultParams = "units=metric&lang=tr";
 
-// DOM elemanı: Loading spinner
 const loadingElement = document.getElementById("loading");
 
-// DOM elemanlarını seçme
+
 const cityInput = document.getElementById("city-input");
 const searchBtn = document.getElementById("search-btn");
 const weatherInfo = document.getElementById("weather-info");
@@ -27,8 +25,7 @@ const autocompleteList = document.getElementById("autocomplete-list");
 const showMapBtn = document.getElementById("show-map-btn");
 const backToWeatherBtn = document.getElementById("back-to-weather-btn");
 
-// Tarih formatını ayarlama fonksiyonu
-function formatDate(date) {
+function formatDate(date, cityName = null) {
   const options = { 
     weekday: 'long', 
     year: 'numeric', 
@@ -37,16 +34,23 @@ function formatDate(date) {
     hour: '2-digit', 
     minute: '2-digit' 
   };
-  return date.toLocaleDateString('tr-TR', options);
+  const formattedDate = date.toLocaleDateString('tr-TR', options);
+  
+  // Eğer şehir adı verilmişse yerel saat bilgisini ekle
+  if (cityName) {
+    return `${formattedDate} (${cityName} yerel saati)`;
+  }
+  
+  return formattedDate;
 }
 
-// Hava durumu bilgilerini almak için API çağrısı
+
 async function fetchWeather(city) {
   try {
     const apiUrl = `${apiBaseUrl}/weather?q=${encodeURIComponent(city)}&${defaultParams}&appid=${apiKey}`;
     console.log(`API çağrısı yapılıyor: ${apiUrl}`);
     
-    // API çağrısı
+   
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -233,7 +237,6 @@ async function fetchWeather(city) {
   }
 }
 
-// Hava durumu bilgilerini gösterme fonksiyonu
 function displayWeather(data, originalSearchName = null) {
   if (!data) {
     weatherInfo.classList.remove("active");
@@ -248,15 +251,51 @@ function displayWeather(data, originalSearchName = null) {
     console.log("API yanıtının anahtarları:", Object.keys(data));
     console.log("🔍 === API YANITI İNCELEMESİ TAMAMLANDI ===");
     
-    // Tarih güncelleme
-    const currentDate = new Date();
-    dateElement.textContent = formatDate(currentDate);
+    // Şehrin yerel saatini hesapla ve göster
+    let localTime;
+    if (data.timezone !== undefined) {
+      // API'den gelen timezone saniye cinsinden UTC'den fark
+      const timezoneOffsetSeconds = data.timezone;
+      
+      // Şu anki UTC zamanını al
+      const now = new Date();
+      const utcTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+      
+      // UTC zamanına şehrin timezone offset'ini ekleyerek yerel zamanı hesapla
+      localTime = new Date(utcTime.getTime() + (timezoneOffsetSeconds * 1000));
+      
+      console.log(`⏰ Şehir yerel saati hesaplaması:`);
+      console.log(`   - Sistem zamanı: ${now.toString()}`);
+      console.log(`   - UTC zaman: ${utcTime.toISOString()}`);
+      console.log(`   - Şehir timezone offset: ${timezoneOffsetSeconds} saniye (${timezoneOffsetSeconds / 3600} saat)`);
+      console.log(`   - Şehir yerel zamanı: ${localTime.toString()}`);
+    } else {
+      // Timezone verisi yoksa sistem saatini kullan
+      localTime = new Date();
+      console.warn("⚠️ Timezone verisi bulunamadı, sistem saati kullanılıyor");
+    }
+    
+    dateElement.textContent = formatDate(localTime, data.name);
     
     // Şehir adı (eğer orijinal arama terimi varsa onu göster, yoksa API'den gelen şehir adını göster)
-    if (originalSearchName) {
-      cityElement.textContent = `${originalSearchName}, ${data.sys.country}`;
-    } else {
-      cityElement.textContent = `${data.name}, ${data.sys.country}`;
+    const cityName = originalSearchName || data.name;
+    cityElement.textContent = `${cityName}, ${data.sys.country}`;
+    
+    // Favoriler sistemi için city data attribute'larını set et
+    cityElement.dataset.cityId = data.id ? data.id.toString() : '';
+    cityElement.dataset.country = data.sys.country || 'TR';
+    
+    // Favoriler yöneticisine şehir verisi güncellendi bilgisini gönder
+    if (typeof favoritesManager !== 'undefined') {
+      const cityData = {
+        id: data.id ? data.id.toString() : '',
+        name: cityName,
+        country: data.sys.country || 'TR',
+        temp: Math.round(data.main.temp).toString(),
+        description: data.weather[0].description,
+        icon: data.weather[0].icon
+      };
+      favoritesManager.onCityDataUpdated(cityData);
     }
     
     // Sıcaklık
@@ -269,19 +308,11 @@ function displayWeather(data, originalSearchName = null) {
     weatherIconElement.src = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
     weatherDescElement.textContent = data.weather[0].description;
     
-    // Ek bilgiler - Rüzgar verilerini detaylı kontrol et
-    console.log("Rüzgar verileri kontrolü:", {
-      windObject: data.wind,
-      speed: data.wind?.speed,
-      deg: data.wind?.deg,
-      gust: data.wind?.gust
-    });
-    
     // Rüzgar hızı işleme - OpenWeatherMap API'si m/s cinsinden veri sağlar
     if (data.wind && data.wind.speed !== undefined) {
       // 1 m/s = 3.6 km/h dönüşüm faktörü
       const windSpeedMs = data.wind.speed;
-      const windSpeedKmh = Math.round(windSpeedMs * 3.6); // Chrome gibi tam sayı göster
+      const windSpeedKmh = Math.round(windSpeedMs * 3.6); 
       
       console.log(`Rüzgar hızı dönüşümü: ${windSpeedMs} m/s → ${windSpeedKmh} km/h`);
       
@@ -482,7 +513,6 @@ function displayWeather(data, originalSearchName = null) {
   }
 }
 
-// Ek hava durumu bilgilerini gösterme
 function updateExtraWeatherInfo(data) {
   // Eğer DOM elementleri yoksa oluştur
   if (!document.getElementById('extra-info')) {
@@ -555,28 +585,17 @@ function updateExtraWeatherInfo(data) {
   // Min-max sıcaklık - OpenWeatherMap API'sinden doğru şekilde al
   const tempMinMaxElement = document.getElementById('temp-min-max');
   
-  console.log("Min-Max sıcaklık verileri kontrolü:", {
-    temp_min: data.main?.temp_min,
-    temp_max: data.main?.temp_max,
-    temp: data.main?.temp,
-    mainObject: data.main
-  });
-  
+
   if (data.main && data.main.temp_min !== undefined && data.main.temp_max !== undefined) {
-    const tempMin = Math.round(data.main.temp_min);
-    const tempMax = Math.round(data.main.temp_max);
-    const currentTemp = Math.round(data.main.temp);
+    const tempMin = data.main.temp_min;
+    const tempMax = data.main.temp_max;
+    const currentTemp = data.main.temp;
     
     console.log(`Min-Max sıcaklık değerleri: Min: ${tempMin}°C, Max: ${tempMax}°C, Şu anki: ${currentTemp}°C`);
     
     // Min-max değerlerini her zaman göster (farklı olup olmamasına bakılmaksızın)
     tempMinMaxElement.textContent = `${tempMin}°C - ${tempMax}°C`;
     tempMinMaxElement.parentElement.style.display = "flex";
-    
-    // Eğer min-max değerleri güncel sıcaklıkla mantıklı değilse uyar
-    if (tempMin > currentTemp || tempMax < currentTemp) {
-      console.warn(`⚠️ Min-Max değerleri tutarsız: Min(${tempMin}) veya Max(${tempMax}) şu anki sıcaklıkla (${currentTemp}) uyumsuz`);
-    }
     
     // Min ve max aynıysa özel durum için log
     if (tempMin === tempMax) {
@@ -596,7 +615,6 @@ function updateExtraWeatherInfo(data) {
   }
 }
 
-// Ek bilgi elementlerini oluştur
 function createExtraInfoElements() {
   // Ana ekstra bilgi konteyneri
   const extraInfoContainer = document.createElement('div');
@@ -659,7 +677,6 @@ function createExtraInfoElements() {
   cardFront.appendChild(extraInfoContainer);
 }
 
-// Varsayılan şehir için hava durumunu yükleme
 window.addEventListener("DOMContentLoaded", async () => {
   // UI'ı hazırla: yükleme göster
   loadingElement.classList.add("active");
@@ -692,7 +709,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// Arama düğmesine tıklama olayı
 searchBtn.addEventListener("click", async () => {
   const city = cityInput.value.trim();
   
@@ -701,13 +717,12 @@ searchBtn.addEventListener("click", async () => {
   }
   
   // Otomatik tamamlama listesini kapat
-  autocompleteList.classList.remove('show');
+  //autocompleteList.classList.remove('show');
   
   // Yeni arama fonksiyonumuzu kullan
   searchWeatherForCity(city);
 });
 
-// Enter tuşuna basma olayı
 cityInput.addEventListener("keypress", async (e) => {
   if (e.key === "Enter") {
     const city = cityInput.value.trim();
@@ -724,7 +739,6 @@ cityInput.addEventListener("keypress", async (e) => {
   }
 });
 
-// Alternatif API çağrı yöntemi (ID ile şehir arama için)
 async function fetchWeatherById(cityId) {
   try {
     const apiUrl = `${apiBaseUrl}/weather?id=${cityId}&${defaultParams}&appid=${apiKey}`;
@@ -771,7 +785,6 @@ async function fetchWeatherById(cityId) {
   }
 }
 
-// OpenWeatherMap'in dokümanlarına uygun olarak koordinatlarla hava durumu sorgulama
 async function fetchWeatherByCoordinates(lat, lon) {
   try {
     const apiUrl = `${apiBaseUrl}/weather?lat=${lat}&lon=${lon}&${defaultParams}&appid=${apiKey}`;
@@ -818,7 +831,6 @@ async function fetchWeatherByCoordinates(lat, lon) {
   }
 }
 
-// Şehir ismi arama için Geocoding API kullanma (daha doğru sonuçlar için)
 async function geocodeCity(cityName) {
   try {
     const limit = 5; // Daha fazla seçenek için limit artırıldı
@@ -831,7 +843,7 @@ async function geocodeCity(cityName) {
         'Accept': 'application/json'
       }
     });
-    
+  
     if (!response.ok) {
       throw new Error(`Geocoding API hatası: ${response.status}`);
     }
@@ -869,7 +881,6 @@ async function geocodeCity(cityName) {
   }
 }
 
-// Bazı popüler şehirler için ID'ler
 const popularCities = {
   "istanbul": 745044,
   "ankara": 323786,
@@ -879,8 +890,7 @@ const popularCities = {
 };
 
 /*
-  Türkiye'deki tüm iller (büyük harflerle, Türkçe karakterlerle ve OpenWeatherMap şehir ID'leriyle)
-  Not: Şehir ID'leri OpenWeatherMap'in city.list.json dosyasından alınmıştır.
+
 */
 const majorCities = [
   { name: "Adana", country: "TR", id: 325363 },
@@ -966,7 +976,6 @@ const majorCities = [
   { name: "Düzce", country: "TR", id: 750268 }
 ];
 
-// ID ile şehir arama yardımcı fonksiyonu
 async function searchCityByIdIfAvailable(cityName) {
   const lowerCityName = cityName.toLowerCase();
   const cityId = popularCities[lowerCityName];
@@ -979,20 +988,17 @@ async function searchCityByIdIfAvailable(cityName) {
   return null;
 }
 
-// Not: Bu fonksiyon şu anda kullanılmıyor, ancak gelecekte kullanım için hazır
 
-// Otomatik tamamlama fonksiyonları
 function filterCities(searchText) {
   if (!searchText || searchText.length < 1) {
     return [];
   }
   
-  // Arama metni harici karakter içeriyorsa boş döndür
   if (/^[^a-zğüşöçıiİA-ZĞÜŞÖÇ\s]+$/.test(searchText)) {
     return [];
   }
 
-  // Türkçe karakterleri normalize et - büyük/küçük harf duyarsız arama için
+  // Türkçe karakterleri normalize et
   const normalizeText = (text) => {
     return text.toLowerCase()
       .replace(/ı/gi, 'i')
@@ -1005,17 +1011,12 @@ function filterCities(searchText) {
   };
   
   const normalizedSearch = normalizeText(searchText);
-  const isShortQuery = normalizedSearch.length <= 2; // Kısa sorguları tespit et (1-2 karakter)
+  const isShortQuery = normalizedSearch.length <= 2;
   
-  // Tüm şehirleri bölümle
   const results = {
-    // Tam eşleşme (en yüksek öncelik)
     exactMatches: [],
-    // Şehir adı arama terimi ile başlıyor (yüksek öncelik)
     startsWithMatches: [],
-    // Şehir adının bir kelimesi arama terimi ile başlıyor (orta öncelik)
     wordStartsWithMatches: [],
-    // Şehir adı içinde arama terimi var (düşük öncelik)
     includesMatches: []
   };
 
@@ -1023,44 +1024,50 @@ function filterCities(searchText) {
     const normalizedCityName = normalizeText(city.name);
     const cityWords = normalizedCityName.split(' ');
     
-    // Tam eşleşme kontrolü
+    // ELSE IF yerine ayrı IF'ler kullan - birden fazla kategoriye girebilsin
     if (normalizedCityName === normalizedSearch) {
       results.exactMatches.push(city);
     }
-    // Şehir adı arama terimi ile başlıyor mu?
-    else if (normalizedCityName.startsWith(normalizedSearch)) {
-      results.startsWithMatches.push(city);
+    
+    if (normalizedCityName.startsWith(normalizedSearch)) {
+      // Tam eşleşme zaten varsa startsWithMatches'e ekleme
+      if (normalizedCityName !== normalizedSearch) {
+        results.startsWithMatches.push(city);
+      }
     }
-    // Kısa sorgularda (1-2 karakter), kelime bazlı eşleşmeleri atlayalım
-    // Böylece "iz" yazıldığında "İzmir" gösterilir, "Denizli" gösterilmez
-    else if (!isShortQuery && cityWords.some(word => word.startsWith(normalizedSearch))) {
-      results.wordStartsWithMatches.push(city);
+    
+    if (!isShortQuery && cityWords.some(word => word.startsWith(normalizedSearch))) {
+      // Zaten exactMatches veya startsWithMatches'te yoksa ekle
+      if (normalizedCityName !== normalizedSearch && !normalizedCityName.startsWith(normalizedSearch)) {
+        results.wordStartsWithMatches.push(city);
+      }
     }
-    // Şehir adının içinde arama terimi geçiyor mu? (kısa sorgularda atlayalım)
-    else if (!isShortQuery && normalizedCityName.includes(normalizedSearch)) {
-      results.includesMatches.push(city);
+    
+    if (!isShortQuery && normalizedCityName.includes(normalizedSearch)) {
+      // Diğer kategorilerde yoksa ekle
+      if (normalizedCityName !== normalizedSearch && 
+          !normalizedCityName.startsWith(normalizedSearch) && 
+          !cityWords.some(word => word.startsWith(normalizedSearch))) {
+        results.includesMatches.push(city);
+      }
     }
   });
 
-  // Tüm eşleşmeleri öncelik sırasına göre birleştir
+  // Öncelik sırasına göre birleştir
   let allMatches = [
     ...results.exactMatches,
-    ...results.startsWithMatches
+    ...results.startsWithMatches,
+    ...results.wordStartsWithMatches,
+    ...results.includesMatches
   ];
-  
-  // Kısa sorgular için (1-2 karakter), sadece tam eşleşme veya başında eşleşenler gösterilir
-  // Böylece "iz" yazıldığında "İzmir" gibi başında eşleşenler öncelikli olur, "Denizli" gibi kelime içinde eşleşenler gösterilmez
-  if (!isShortQuery) {
-    allMatches = [...allMatches, ...results.wordStartsWithMatches, ...results.includesMatches];
-  }
 
-  return allMatches.slice(0, 5); // En fazla 5 sonuç göster
+  return allMatches.slice(0, 3);
 }
 
 function displayAutocompleteSuggestions(matches) {
-  if (matches.length === 0) {
-    autocompleteList.innerHTML = '';
-    autocompleteList.classList.remove('show');
+  if (matches.length === 0 && cityInput.value.trim().length >= 1) {
+    autocompleteList.innerHTML = '<div class="autocomplete-item">Şehir bulunamadı</div>';
+    //autocompleteList.classList.remove('show');
     return;
   }
 
@@ -1076,7 +1083,7 @@ function displayAutocompleteSuggestions(matches) {
         // Türkçe karakterleri düzgün eşleştirmek için karakter sınıfları oluştur
         const createTurkishCharacterClass = (char) => {
           const charMap = {
-            'i': '[iıİI]',
+            'i': '[iİıI]',
             'ı': '[iıİI]',
             'İ': '[iıİI]',
             'I': '[iıİI]',
@@ -1165,7 +1172,6 @@ function displayAutocompleteSuggestions(matches) {
   });
 }
 
-// Ülke kodunu ülke adına dönüştür
 function getCountryName(countryCode) {
   const countryNames = {
     'TR': 'Türkiye',
@@ -1184,7 +1190,6 @@ function getCountryName(countryCode) {
   return countryNames[countryCode] || countryCode;
 }
 
-// Seçilen şehir için hava durumu arama
 async function searchWeatherForCity(cityName, cityId) {
   // UI'ı hazırla: bilgileri gizle, yükleme göster
   weatherInfo.classList.remove("active");
@@ -1225,10 +1230,8 @@ async function searchWeatherForCity(cityName, cityId) {
   }
 }
 
-// Seçili öğe indeksi için global değişken
 let currentFocus = -1;
 
-// Otomatik tamamlama olayları
 cityInput.addEventListener('input', (e) => {
   // Her karakter girişinde hemen güncelle
   const searchText = cityInput.value.trim();
@@ -1237,7 +1240,6 @@ cityInput.addEventListener('input', (e) => {
   currentFocus = -1; // Seçili öğeyi sıfırla
 });
 
-// İlk tıklamada veya focus'ta da gösterimi etkinleştir
 cityInput.addEventListener('click', (e) => {
   const searchText = cityInput.value.trim();
   if (searchText.length >= 1) {
@@ -1246,7 +1248,6 @@ cityInput.addEventListener('click', (e) => {
   }
 });
 
-// Klavye tuşları ile otomatik tamamlama listesinde gezinme
 cityInput.addEventListener('keydown', (e) => {
   const autocompleteItems = document.querySelectorAll('.autocomplete-item');
   
@@ -1275,7 +1276,6 @@ cityInput.addEventListener('keydown', (e) => {
   }
 });
 
-// Seçili öğeyi işaretle
 function setActiveItem(items) {
   // Önce tüm "active" classlarını kaldır
   items.forEach(item => {
@@ -1303,14 +1303,12 @@ function setActiveItem(items) {
   }
 }
 
-// Sayfanın herhangi bir yerine tıklandığında otomatik tamamlama listesini kapat
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.autocomplete-container')) {
     autocompleteList.classList.remove('show');
   }
 });
 
-// Enter tuşuna basmadan da arama yapmak için
 cityInput.addEventListener('focus', () => {
   const searchText = cityInput.value.trim();
   if (searchText.length >= 1) {
@@ -1319,10 +1317,9 @@ cityInput.addEventListener('focus', () => {
   }
 });
 
-// Konum butonu
+
 const locationBtn = document.getElementById("location-btn");
 
-// Konum butonu tıklama olayı
 locationBtn.addEventListener("click", () => {
   if (navigator.geolocation) {
     // UI'ı hazırla
@@ -1361,13 +1358,11 @@ locationBtn.addEventListener("click", () => {
   }
 });
 
-// Google Maps için global değişkenler
 let map = null;
 let marker = null;
 let currentCityCoords = { lat: 41.0082, lng: 28.9784 }; // Varsayılan konum (İstanbul)
 let mapInitialized = false;
 
-// Harita başlatma fonksiyonu (Google Maps API callback'i)
 function initMap() {
   try {
     console.log("initMap çağrıldı, harita başlatılıyor...");
@@ -1457,10 +1452,8 @@ function initMap() {
   }
 }
 
-// initMap fonksiyonunu global olarak erişilebilir yap
 window.initMap = initMap;
 
-// Haritayı belirli bir konuma güncelleme fonksiyonu
 function updateMap(lat, lng, cityName) {
   console.log(`updateMap çağrıldı: ${cityName}, ${lat}, ${lng}`);
   
@@ -1522,7 +1515,6 @@ function updateMap(lat, lng, cityName) {
   }
 }
 
-// Haritayı yeniden boyutlandırma ve merkezleme fonksiyonu
 function resizeAndCenterMap() {
   if (map && mapInitialized) {
     console.log("Harita yeniden boyutlandırılıyor...");
@@ -1546,7 +1538,6 @@ function resizeAndCenterMap() {
   }
 }
 
-// Kart çevirme animasyonunun bitişini dinleyen event listener
 document.querySelector('.card').addEventListener('transitionend', function(e) {
   if (e.propertyName === 'transform' && this.classList.contains('flipped')) {
     console.log("Kart çevirme animasyonu tamamlandı, harita yeniden boyutlandırılıyor");
@@ -1554,7 +1545,6 @@ document.querySelector('.card').addEventListener('transitionend', function(e) {
   }
 });
 
-// Harita göster butonuna tıklama olayı
 showMapBtn.addEventListener("click", () => {
   console.log("Harita gösterme butonu tıklandı");
   const card = document.querySelector('.card');
@@ -1568,14 +1558,12 @@ showMapBtn.addEventListener("click", () => {
   }, 800); // Kart çevirme animasyonunun süresi kadar bekle
 });
 
-// Hava durumuna dön butonuna tıklama olayı
 backToWeatherBtn.addEventListener("click", () => {
   console.log("Hava durumuna dönüş butonu tıklandı");
   const card = document.querySelector('.card');
   card.classList.remove('flipped');
 });
 
-// Test amaçlı rüzgar birim dönüşümünü kontrol etme fonksiyonu
 function testWindConversion() {
   console.log("=== Rüzgar Birim Dönüşüm Testi ===");
   
@@ -1609,7 +1597,6 @@ function testWindConversion() {
   console.log("=== Test Tamamlandı ===");
 }
 
-// API testi fonksiyonu - gerçek API çağrısı yaparak verileri kontrol eder
 async function testApiData() {
   console.log("=== API Veri Testi Başlatılıyor ===");
   
@@ -1653,8 +1640,35 @@ async function testApiData() {
   console.log("\n=== API Veri Testi Tamamlandı ===");
 }
 
-// Geliştirme amaçlı test fonksiyonunu çalıştır (isteğe bağlı)
-// Sayfa yüklendiğinde test yapmak için aşağıdaki satırların başındaki // işaretini kaldırın
-// setTimeout(testWindConversion, 1000);
-// setTimeout(testApiData, 2000); // API testini 2 saniye sonra çalıştır
+
+function loadGoogleMapsScript() {
+  // İlk olarak initMap fonksiyonunun tanımlı olduğundan emin ol
+  if (typeof window.initMap !== 'function') {
+    console.error('initMap fonksiyonu henüz tanımlanmadı!');
+    setTimeout(loadGoogleMapsScript, 100); 
+    return;
+  }
+  
+  const script = document.createElement('script');
+  // Google Maps API anahtarı ile harita yükleme
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDw2tqWxldIJgur7Iuw8ErU3J5DIO8h0yA&v=weekly&callback=initMap";
+  script.async = true;
+  script.defer = true;
+  script.onerror = function() {
+    console.error('Google Maps API yüklenemedi! API anahtarı veya internet bağlantısını kontrol edin.');
+    alert('Google Maps yüklenemedi. Lütfen internet bağlantınızı kontrol edin.');
+  };
+  script.onload = function() {
+    console.log('Google Maps API başarıyla yüklendi');
+  };
+  document.body.appendChild(script);
+  
+  console.log("Google Maps API yükleniyor...");
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(loadGoogleMapsScript, 500); 
+  console.log("Sayfa yüklendi, harita yükleniyor...");
+});
 
