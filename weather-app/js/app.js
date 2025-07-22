@@ -25,6 +25,7 @@ const autocompleteList = document.getElementById("autocomplete-list");
 const showMapBtn = document.getElementById("show-map-btn");
 const backToWeatherBtn = document.getElementById("back-to-weather-btn");
 
+
 function formatDate(date, cityName = null) {
   const options = { 
     weekday: 'long', 
@@ -296,6 +297,11 @@ function displayWeather(data, originalSearchName = null) {
         icon: data.weather[0].icon
       };
       favoritesManager.onCityDataUpdated(cityData);
+    }
+    
+    // Hava kalitesi verilerini güncelle
+    if (typeof airQualityManager !== 'undefined' && data.coord) {
+      airQualityManager.onLocationUpdated(data.coord.lat, data.coord.lon);
     }
     
     // Sıcaklık
@@ -716,7 +722,6 @@ searchBtn.addEventListener("click", async () => {
     return;
   }
   
-  // Otomatik tamamlama listesini kapat
   //autocompleteList.classList.remove('show');
   
   // Yeni arama fonksiyonumuzu kullan
@@ -889,9 +894,7 @@ const popularCities = {
   "bursa": 750269
 };
 
-/*
 
-*/
 const majorCities = [
   { name: "Adana", country: "TR", id: 325363 },
   { name: "Adıyaman", country: "TR", id: 325330 },
@@ -1315,6 +1318,7 @@ cityInput.addEventListener('focus', () => {
     const matches = filterCities(searchText);
     displayAutocompleteSuggestions(matches);
   }
+
 });
 
 

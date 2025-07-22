@@ -30,7 +30,7 @@ class FavoritesManager {
         country: cityData.country || 'TR',
         temp: cityData.temp,
         description: cityData.description,
-        icon: cityData.icon,
+        icon: cityData.icon,  // OpenWeatherMap ikon kodu
         addedDate: new Date().toISOString()
       };
       
@@ -176,11 +176,7 @@ class FavoritesManager {
   }
 
   loadFavoriteCity(cityName, cityId) {
-    if (typeof searchWeatherForCity === 'function') {
-      searchWeatherForCity(cityName, cityId);
-    } else {
-      console.warn('searchWeatherForCity fonksiyonu bulunamadı!');
-    }
+    searchWeatherForCity(cityName, cityId);
   }
 
   setupEventListeners() {
@@ -197,10 +193,8 @@ class FavoritesManager {
         const isAlreadyFavorite = favorites.find(fav => fav.id === currentCity.id);
         
         if (isAlreadyFavorite) {
-          // Favorilerden çıkar
           this.removeFromFavorites(currentCity.id);
         } else {
-          // Favorilere ekle
           this.addToFavorites(currentCity);
         }
       });
