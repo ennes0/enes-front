@@ -1,0 +1,3 @@
+// Bu dosya earth-texture.jpg dosyasının placeholder'ı olarak kullanılacak
+// Gerçek projede https://www.solarsystemscope.com/textures/ adresinden
+// earth daymap.jpg dosyasını indirip public klasörüne earth-texture.jpg olarak kaydedin
