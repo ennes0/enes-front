@@ -1,0 +1,359 @@
+/* Weather Widget Extension - Modern Card Design Inspired by Image */
+
+/* Ana widget container */
+#weather-widget-extension {
+  position: fixed !important;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+  border-radius: 20px !important;
+  padding: 20px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  color: white !important;
+  min-width: 180px !important;
+  max-width: 200px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  cursor: default !important;
+  user-select: none !important;
+  transition: all 0.3s ease !important;
+  z-index: 2147483647 !important;
+  overflow: hidden !important;
+}
+
+#weather-widget-extension:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Tema renkleri */
+#weather-widget-extension.sunny {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+#weather-widget-extension.partly-cloudy {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+}
+
+#weather-widget-extension.cloudy {
+  background: linear-gradient(135deg, #a8c8ec 0%, #7d8dc1 100%) !important;
+}
+
+#weather-widget-extension.rainy {
+  background: linear-gradient(135deg, #4b79a1 0%, #283e51 100%) !important;
+}
+
+#weather-widget-extension.night {
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%) !important;
+}
+
+#weather-widget-extension.stormy {
+  background: linear-gradient(135deg, #373B44 0%, #4286f4 100%) !important;
+}
+
+/* Widget başlığı */
+.widget-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 5px !important;
+  position: relative !important;
+}
+
+.location-info {
+  flex: 1 !important;
+}
+
+#location-name {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.weather-date {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 2px !important;
+  font-weight: 400 !important;
+}
+
+/* Ana hava durumu ikonu */
+#main-weather-icon {
+  font-size: 64px !important;
+  display: block !important;
+  text-align: center !important;
+  margin: 15px 0 10px 0 !important;
+  line-height: 1 !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) !important;
+}
+
+/* Sıcaklık gösterimi */
+.temperature-display {
+  text-align: center !important;
+  margin-bottom: 10px !important;
+}
+
+#temperature {
+  font-size: 48px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  color: white !important;
+}
+
+/* Hava durumu açıklaması */
+#description {
+  text-align: center !important;
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin-bottom: 15px !important;
+  font-weight: 500 !important;
+  text-transform: capitalize !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Alt detaylar */
+.weather-details {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 10px !important;
+}
+
+.detail-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.detail-icon {
+  font-size: 14px !important;
+  margin-bottom: 2px !important;
+}
+
+.detail-value {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.detail-label {
+  font-size: 10px !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Kontrol düğmeleri */
+.widget-controls {
+  position: absolute !important;
+  top: -5px !important;
+  right: -5px !important;
+  display: flex !important;
+  gap: 5px !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+#weather-widget-extension:hover .widget-controls {
+  opacity: 1 !important;
+}
+
+.control-btn {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  color: white !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.control-btn:hover {
+  background: rgba(0, 0, 0, 0.5) !important;
+  transform: scale(1.1) !important;
+}
+
+/* Loading durumu */
+.widget-loading {
+  text-align: center !important;
+  padding: 20px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.spinner {
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 50% !important;
+  border-top: 2px solid white !important;
+  animation: spin 1s linear infinite !important;
+  margin: 0 auto 10px !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Hata mesajı */
+.error-message {
+  background: rgba(220, 53, 69, 0.9) !important;
+  color: white !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  text-align: center !important;
+  margin-top: 10px !important;
+}
+
+/* Animasyonlar */
+#weather-widget-extension.animated {
+  animation: slideIn 0.5s ease-out !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Boyut varyantları */
+#weather-widget-extension.small {
+  min-width: 140px !important;
+  max-width: 160px !important;
+  padding: 15px !important;
+}
+
+#weather-widget-extension.small #main-weather-icon {
+  font-size: 48px !important;
+}
+
+#weather-widget-extension.small #temperature {
+  font-size: 36px !important;
+}
+
+#weather-widget-extension.medium {
+  min-width: 180px !important;
+  max-width: 200px !important;
+  padding: 20px !important;
+}
+
+#weather-widget-extension.large {
+  min-width: 220px !important;
+  max-width: 240px !important;
+  padding: 25px !important;
+}
+
+#weather-widget-extension.large #main-weather-icon {
+  font-size: 80px !important;
+}
+
+#weather-widget-extension.large #temperature {
+  font-size: 56px !important;
+}
+
+/* Küçültülmüş durum */
+#weather-widget-extension.minimized .widget-content {
+  display: none !important;
+}
+
+#weather-widget-extension.minimized {
+  min-width: 60px !important;
+  padding: 10px !important;
+}
+
+/* Drag işlemi */
+#weather-widget-extension.dragging {
+  cursor: grabbing !important;
+  transform: rotate(2deg) scale(1.05) !important;
+  z-index: 2147483647 !important;
+}
+
+/* Widget içeriği */
+.widget-content {
+  position: relative !important;
+}
+
+/* Geçiş efektleri */
+#weather-widget-extension * {
+  transition: all 0.2s ease !important;
+}
+
+/* Favori şehirler bölümü (gizli) */
+.favorites-section {
+  display: none !important;
+}
+
+/* Update zamanı */
+#last-updated-time {
+  text-align: center !important;
+  font-size: 10px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  margin-top: 10px !important;
+}
+
+/* Responsive optimizasyonlar */
+@media (max-width: 480px) {
+  #weather-widget-extension {
+    min-width: 140px !important;
+    max-width: 160px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Temalar için ek optimizasyonlar */
+#weather-widget-extension.light {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+#weather-widget-extension.dark {
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%) !important;
+}
+
+/* Widget detayları alt kısım düzenlemesi */
+.current-weather {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.main-temp {
+  text-align: center !important;
+  margin-bottom: 10px !important;
+}
+
+.weather-desc {
+  text-align: center !important;
+  margin-bottom: 15px !important;
+}
+
+#feels-like {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 5px !important;
+  text-align: center !important;
+}
+
+/* Mini temperature display in header */
+#temperature-mini {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500 !important;
+}

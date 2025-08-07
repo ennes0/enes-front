@@ -14,7 +14,7 @@ class AirQualityManager {
   async fetchAirQuality(lat, lon) {
     try {
       const url = `${this.baseUrl}?lat=${lat}&lon=${lon}&appid=${this.apiKey}`;
-      console.log('🌬️ Hava kalitesi verisi çekiliyor:', url);
+      
       
       const response = await fetch(url);
       if (!response.ok) {

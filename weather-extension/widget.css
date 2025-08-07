@@ -1,0 +1,1129 @@
+/* Weather Widget Extension - Exact Match Design with Smooth Drag Performance */
+
+#weather-widget-extension {
+  position: fixed !important;
+  background: linear-gradient(135deg, #4a90e2 0%, #7bb3f0 100%) !important;
+  border-radius: 20px !important;
+  padding: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  color: white !important;
+  width: 400px !important;
+  height: 80px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  cursor: grab !important;
+  user-select: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+  z-index: 2147483647 !important;
+  overflow: hidden !important;
+  
+  /* Performance optimizations */
+  will-change: transform !important;
+  transform: translateZ(0) !important; /* Force GPU layer */
+  backface-visibility: hidden !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+#weather-widget-extension:hover {
+  transform: translateY(-2px) translateZ(0) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+/* Drag sırasındaki smooth efektler */
+#weather-widget-extension.dragging {
+  transform: rotate(1deg) scale(1.02) translateZ(0) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+  z-index: 2147483648 !important;
+  cursor: grabbing !important;
+  transition: box-shadow 0.2s ease !important; /* Sadece shadow için transition */
+  will-change: transform !important;
+  
+  /* Drag sırasında GPU acceleration artır */
+  -webkit-transform: rotate(1deg) scale(1.02) translateZ(0) !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  -webkit-perspective: 1000px !important;
+  perspective: 1000px !important;
+}
+
+#weather-widget-extension.dragging * {
+  cursor: grabbing !important;
+  pointer-events: none !important; /* Drag sırasında etkileşimleri kapat */
+}
+
+/* Hover animasyonu optimize edilmiş */
+#weather-widget-extension:not(.dragging):hover {
+  animation: hoverPulse 2s ease-in-out infinite !important;
+}
+
+@keyframes hoverPulse {
+  0%, 100% { transform: translateY(-1px) scale(1) translateZ(0); }
+  50% { transform: translateY(-2px) scale(1.005) translateZ(0); }
+}
+
+/* Boyut ayarları - performans optimized */
+#weather-widget-extension.small {
+  width: 320px !important;
+  height: 70px !important;
+  font-size: 12px !important;
+  transform: scale(0.9) translateZ(0) !important;
+  transform-origin: center !important;
+}
+
+#weather-widget-extension.medium {
+  width: 400px !important;
+  height: 80px !important;
+  font-size: 14px !important;
+  transform: scale(1) translateZ(0) !important;
+}
+
+#weather-widget-extension.large {
+  width: 480px !important;
+  height: 90px !important;
+  font-size: 16px !important;
+  transform: scale(1.1) translateZ(0) !important;
+  transform-origin: center !important;
+}
+
+/* Tema ayarları */
+#weather-widget-extension.light {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  color: #333 !important;
+}
+
+#weather-widget-extension.dark {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+  color: #ecf0f1 !important;
+}
+
+#weather-widget-extension.blue {
+  background: linear-gradient(135deg, #4a90e2 0%, #7bb3f0 100%) !important;
+  color: #ffffff !important;
+}
+
+#weather-widget-extension.green {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Ana kart tasarımı - performans optimized */
+.weather-card-horizontal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  padding: 16px 20px !important;
+  position: relative !important;
+  will-change: transform !important;
+  transform: translateZ(0) !important;
+}
+
+/* Sol bölüm - GPU accelerated */
+.weather-left-section {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  flex: 1 !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
+/* Hava durumu açıklaması */
+.weather-condition {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  margin-bottom: 2px !important;
+  opacity: 0.9 !important;
+  line-height: 1.2 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+/* Ana sıcaklık - smooth font rendering */
+.weather-temperature {
+  font-size: 36px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  margin: 2px 0 !important;
+  color: inherit !important;
+  display: inline !important;
+  transform: translateZ(0) !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  transition: transform 0.2s ease !important;
+}
+
+.weather-temperature:hover {
+  transform: scale(1.05) translateZ(0) !important;
+}
+
+/* Alt detaylar */
+.weather-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+  margin-top: 2px !important;
+  transform: translateZ(0) !important;
+}
+
+.weather-date, .weather-location {
+  font-size: 12px !important;
+  opacity: 0.8 !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+/* Orta bölüm - ayırıcı çizgi animated */
+.weather-divider {
+  width: 1px !important;
+  height: 50px !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  margin: 0 16px !important;
+  transform: translateZ(0) !important;
+  transition: all 0.3s ease !important;
+}
+
+#weather-widget-extension:hover .weather-divider {
+  height: 55px !important;
+  background: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Sağ bölüm - ikon optimized */
+.weather-right-section {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 80px !important;
+  height: 60px !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
+/* Hava durumu ikonu - smooth animations */
+.weather-icon-large {
+  font-size: 40px !important;
+  position: relative !important;
+  z-index: 2 !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+  transform: translateZ(0) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+.weather-icon-large:hover {
+  transform: scale(1.1) rotate(5deg) translateZ(0) !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+}
+
+/* Bulut efekti - smooth rendering */
+.weather-right-section::before,
+.weather-right-section::after {
+  position: absolute !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 50px !important;
+  z-index: 1 !important;
+  transform: translateZ(0) !important;
+  transition: all 0.3s ease !important;
+  will-change: transform, opacity !important;
+}
+
+.weather-right-section::before {
+  content: '' !important;
+  top: 10px !important;
+  right: -10px !important;
+  width: 60px !important;
+  height: 35px !important;
+}
+
+.weather-right-section::after {
+  content: '' !important;
+  top: 20px !important;
+  right: -5px !important;
+  width: 40px !important;
+  height: 25px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+#weather-widget-extension:hover .weather-right-section::before {
+  transform: scale(1.05) translateZ(0) !important;
+  opacity: 0.3 !important;
+}
+
+/* Kontrol düğmeleri - smooth fade */
+.widget-controls {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  display: flex !important;
+  gap: 4px !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+  transform: translateZ(0) !important;
+  will-change: opacity !important;
+}
+
+#weather-widget-extension:hover .widget-controls {
+  opacity: 1 !important;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: white !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  font-size: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+  transform: translateZ(0) !important;
+  will-change: transform, background-color !important;
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: scale(1.1) translateZ(0) !important;
+}
+
+.control-btn:active {
+  transform: scale(0.95) translateZ(0) !important;
+}
+
+/* Animasyon sınıfı - optimized */
+#weather-widget-extension.animated {
+  animation: slideInBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+@keyframes slideInBounce {
+  0% { 
+    opacity: 0; 
+    transform: translateX(100px) scale(0.8) translateZ(0); 
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateX(-10px) scale(1.05) translateZ(0);
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0) scale(1) translateZ(0); 
+  }
+}
+
+/* Boyut ayarları */
+#weather-widget-extension.small {
+  width: 320px !important;
+  height: 70px !important;
+  font-size: 12px !important;
+}
+
+#weather-widget-extension.medium {
+  width: 400px !important;
+  height: 80px !important;
+  font-size: 14px !important;
+}
+
+#weather-widget-extension.large {
+  width: 480px !important;
+  height: 90px !important;
+  font-size: 16px !important;
+}
+
+/* Tema ayarları */
+#weather-widget-extension.light {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  color: #333 !important;
+}
+
+#weather-widget-extension.dark {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+  color: #ecf0f1 !important;
+}
+
+#weather-widget-extension.blue {
+  background: linear-gradient(135deg, #4a90e2 0%, #7bb3f0 100%) !important;
+  color: #ffffff !important;
+}
+
+#weather-widget-extension.green {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Ana kart tasarımı - görseldeki gibi yatay */
+.weather-card-horizontal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  padding: 16px 20px !important;
+  position: relative !important;
+}
+
+/* Sol bölüm - metin bilgileri */
+.weather-left-section {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  flex: 1 !important;
+}
+
+/* Hava durumu açıklaması */
+.weather-condition {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  margin-bottom: 2px !important;
+  opacity: 0.9 !important;
+  line-height: 1.2 !important;
+}
+
+/* Ana sıcaklık - büyük ve belirgin */
+.weather-temperature {
+  font-size: 36px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  margin: 2px 0 !important;
+  color: inherit !important;
+  display: inline !important;
+}
+
+/* Derece işareti ayrı stil */
+.weather-temperature::after {
+  content: '' !important;
+  font-size: 24px !important;
+  vertical-align: top !important;
+  opacity: 0.8 !important;
+}
+
+/* Alt detaylar */
+.weather-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+  margin-top: 2px !important;
+}
+
+.weather-date {
+  font-size: 12px !important;
+  opacity: 0.8 !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+}
+
+.weather-location {
+  font-size: 12px !important;
+  opacity: 0.8 !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+}
+
+/* Orta bölüm - ayırıcı çizgi */
+.weather-divider {
+  width: 1px !important;
+  height: 50px !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  margin: 0 16px !important;
+}
+
+/* Sağ bölüm - ikon ve bulut */
+.weather-right-section {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 80px !important;
+  height: 60px !important;
+}
+
+/* Hava durumu ikonu */
+.weather-icon-large {
+  font-size: 40px !important;
+  position: relative !important;
+  z-index: 2 !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* Bulut efekti - görseldeki gibi */
+.weather-right-section::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 10px !important;
+  right: -10px !important;
+  width: 60px !important;
+  height: 35px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 50px !important;
+  z-index: 1 !important;
+}
+
+.weather-right-section::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 20px !important;
+  right: -5px !important;
+  width: 40px !important;
+  height: 25px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 50px !important;
+  z-index: 1 !important;
+}
+
+/* Small boyut için ayarlamalar */
+#weather-widget-extension.small .weather-temperature {
+  font-size: 28px !important;
+}
+
+#weather-widget-extension.small .weather-icon-large {
+  font-size: 32px !important;
+}
+
+#weather-widget-extension.small .weather-right-section {
+  min-width: 60px !important;
+  height: 50px !important;
+}
+
+/* Large boyut için ayarlamalar */
+#weather-widget-extension.large .weather-temperature {
+  font-size: 42px !important;
+}
+
+#weather-widget-extension.large .weather-icon-large {
+  font-size: 48px !important;
+}
+
+#weather-widget-extension.large .weather-right-section {
+  min-width: 100px !important;
+  height: 70px !important;
+}
+
+/* Kontrol düğmeleri - minimal */
+.widget-controls {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  display: flex !important;
+  gap: 4px !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+#weather-widget-extension:hover .widget-controls {
+  opacity: 1 !important;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: white !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  font-size: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Animasyon sınıfı */
+#weather-widget-extension.animated {
+  animation: slideIn 0.5s ease-out !important;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0; 
+    transform: translateX(100px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+/* Boyut ayarları */
+#weather-widget-extension.small {
+  min-width: 260px !important;
+  height: 100px !important;
+  font-size: 12px !important;
+}
+
+#weather-widget-extension.medium {
+  min-width: 320px !important;
+  height: 120px !important;
+  font-size: 14px !important;
+}
+
+#weather-widget-extension.large {
+  min-width: 380px !important;
+  height: 140px !important;
+  font-size: 16px !important;
+}
+
+/* Tema ayarları */
+#weather-widget-extension.light {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  color: #212529 !important;
+}
+
+#weather-widget-extension.dark {
+  background: linear-gradient(135deg, #343a40 0%, #495057 100%) !important;
+  color: #f8f9fa !important;
+}
+
+#weather-widget-extension.blue {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+  color: #ffffff !important;
+}
+
+#weather-widget-extension.green {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Yatay kart tasarımı */
+.weather-card-horizontal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  padding: 20px !important;
+  position: relative !important;
+}
+
+/* Sol bölüm - metin bilgileri */
+.weather-left-section {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.weather-condition {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  margin-bottom: 5px !important;
+  opacity: 0.9 !important;
+}
+
+.weather-temperature {
+  font-size: 48px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  margin-bottom: 5px !important;
+  color: inherit !important;
+}
+
+.weather-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.weather-date {
+  font-size: 14px !important;
+  opacity: 0.8 !important;
+  font-weight: 400 !important;
+}
+
+.weather-location {
+  font-size: 14px !important;
+  opacity: 0.8 !important;
+  font-weight: 400 !important;
+}
+
+/* Sağ bölüm - ikon */
+.weather-right-section {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: 20px !important;
+}
+
+.weather-icon-large {
+  font-size: 64px !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+}
+
+/* Small boyut için ikon ayarı */
+#weather-widget-extension.small .weather-icon-large {
+  font-size: 48px !important;
+}
+
+/* Large boyut için ikon ayarı */
+#weather-widget-extension.large .weather-icon-large {
+  font-size: 72px !important;
+}
+
+/* Kontrol düğmeleri */
+.widget-controls {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  display: flex !important;
+  gap: 5px !important;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: white !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Animasyon sınıfı */
+#weather-widget-extension.animated {
+  animation: fadeIn 0.5s ease-in-out !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Yatay kart tasarımı */
+.weather-card-horizontal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  padding: 20px !important;
+  position: relative !important;
+}
+
+/* Sol bölüm - metin bilgileri */
+.weather-left-section {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.weather-condition {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  margin-bottom: 5px !important;
+  opacity: 0.9 !important;
+}
+
+.weather-temperature {
+  font-size: 48px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  margin-bottom: 5px !important;
+  color: white !important;
+}
+
+.weather-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.weather-date {
+  font-size: 14px !important;
+  opacity: 0.8 !important;
+  font-weight: 400 !important;
+}
+
+.weather-location {
+  font-size: 14px !important;
+  opacity: 0.8 !important;
+  font-weight: 400 !important;
+}
+
+/* Sağ bölüm - ikon */
+.weather-right-section {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: 20px !important;
+}
+
+.weather-icon-large {
+  font-size: 64px !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+}
+
+/* Kontrol düğmeleri */
+.widget-controls {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  display: flex !important;
+  gap: 5px !important;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: white !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Tema renkleri */
+#weather-widget-extension.sunny {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+#weather-widget-extension.partly-cloudy {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+}
+
+#weather-widget-extension.cloudy {
+  background: linear-gradient(135deg, #a8c8ec 0%, #7d8dc1 100%) !important;
+}
+
+#weather-widget-extension.rainy {
+  background: linear-gradient(135deg, #4b79a1 0%, #283e51 100%) !important;
+}
+
+#weather-widget-extension.night {
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%) !important;
+}
+
+#weather-widget-extension.stormy {
+  background: linear-gradient(135deg, #373B44 0%, #4286f4 100%) !important;
+}
+
+/* Widget başlığı */
+.widget-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 5px !important;
+  position: relative !important;
+}
+
+.location-info {
+  flex: 1 !important;
+}
+
+#location-name {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.weather-date {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 2px !important;
+  font-weight: 400 !important;
+}
+
+/* Ana hava durumu ikonu */
+#main-weather-icon {
+  font-size: 64px !important;
+  display: block !important;
+  text-align: center !important;
+  margin: 15px 0 10px 0 !important;
+  line-height: 1 !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) !important;
+}
+
+/* Sıcaklık gösterimi */
+.temperature-display {
+  text-align: center !important;
+  margin-bottom: 10px !important;
+}
+
+#temperature {
+  font-size: 48px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  color: white !important;
+}
+
+/* Hava durumu açıklaması */
+#description {
+  text-align: center !important;
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin-bottom: 15px !important;
+  font-weight: 500 !important;
+  text-transform: capitalize !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Alt detaylar */
+.weather-details {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 10px !important;
+}
+
+.detail-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.detail-icon {
+  font-size: 14px !important;
+  margin-bottom: 2px !important;
+}
+
+.detail-value {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.detail-label {
+  font-size: 10px !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Kontrol düğmeleri */
+.widget-controls {
+  position: absolute !important;
+  top: -5px !important;
+  right: -5px !important;
+  display: flex !important;
+  gap: 5px !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+#weather-widget-extension:hover .widget-controls {
+  opacity: 1 !important;
+}
+
+.control-btn {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  color: white !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.control-btn:hover {
+  background: rgba(0, 0, 0, 0.5) !important;
+  transform: scale(1.1) !important;
+}
+
+/* Loading durumu */
+.widget-loading {
+  text-align: center !important;
+  padding: 20px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.spinner {
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 50% !important;
+  border-top: 2px solid white !important;
+  animation: spin 1s linear infinite !important;
+  margin: 0 auto 10px !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Hata mesajı */
+.error-message {
+  background: rgba(220, 53, 69, 0.9) !important;
+  color: white !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  text-align: center !important;
+  margin-top: 10px !important;
+}
+
+/* Animasyonlar */
+#weather-widget-extension.animated {
+  animation: slideIn 0.5s ease-out !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Boyut varyantları */
+#weather-widget-extension.small {
+  min-width: 140px !important;
+  max-width: 160px !important;
+  padding: 15px !important;
+}
+
+#weather-widget-extension.small #main-weather-icon {
+  font-size: 48px !important;
+}
+
+#weather-widget-extension.small #temperature {
+  font-size: 36px !important;
+}
+
+#weather-widget-extension.medium {
+  min-width: 180px !important;
+  max-width: 200px !important;
+  padding: 20px !important;
+}
+
+#weather-widget-extension.large {
+  min-width: 220px !important;
+  max-width: 240px !important;
+  padding: 25px !important;
+}
+
+#weather-widget-extension.large #main-weather-icon {
+  font-size: 80px !important;
+}
+
+#weather-widget-extension.large #temperature {
+  font-size: 56px !important;
+}
+
+/* Küçültülmüş durum */
+#weather-widget-extension.minimized .widget-content {
+  display: none !important;
+}
+
+#weather-widget-extension.minimized {
+  min-width: 60px !important;
+  padding: 10px !important;
+}
+
+/* Drag işlemi */
+#weather-widget-extension.dragging {
+  cursor: grabbing !important;
+  transform: rotate(2deg) scale(1.05) !important;
+  z-index: 2147483647 !important;
+}
+
+/* Widget içeriği */
+.widget-content {
+  position: relative !important;
+}
+
+/* Geçiş efektleri */
+#weather-widget-extension * {
+  transition: all 0.2s ease !important;
+}
+
+/* Favori şehirler bölümü (gizli) */
+.favorites-section {
+  display: none !important;
+}
+
+/* Update zamanı */
+#last-updated-time {
+  text-align: center !important;
+  font-size: 10px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  margin-top: 10px !important;
+}
+
+/* Responsive optimizasyonlar */
+@media (max-width: 480px) {
+  #weather-widget-extension {
+    min-width: 140px !important;
+    max-width: 160px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Temalar için ek optimizasyonlar */
+#weather-widget-extension.light {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+#weather-widget-extension.dark {
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%) !important;
+}
+
+/* Widget detayları alt kısım düzenlemesi */
+.current-weather {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.main-temp {
+  text-align: center !important;
+  margin-bottom: 10px !important;
+}
+
+.weather-desc {
+  text-align: center !important;
+  margin-bottom: 15px !important;
+}
+
+#feels-like {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 5px !important;
+  text-align: center !important;
+}
+
+/* Mini temperature display in header */
+#temperature-mini {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500 !important;
+}

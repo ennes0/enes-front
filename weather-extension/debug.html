@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Widget Debug</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .debug-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌤️ Weather Widget Extension Debug</h1>
+    
+    <div class="debug-section">
+        <h3>Extension Durum Kontrolü</h3>
+        <div id="extension-status" class="status info">Extension durum kontrol ediliyor...</div>
+        <button onclick="checkExtension()">Extension Kontrol Et</button>
+        <button onclick="checkWidget()">Widget Kontrol Et</button>
+        <button onclick="forceCreateWidget()">Widget Zorla Oluştur</button>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Console Logları</h3>
+        <div id="console-logs" class="status info">Console logları burada görünecek...</div>
+        <button onclick="clearLogs()">Logları Temizle</button>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Manuel Testler</h3>
+        <button onclick="testStorage()">Storage Test</button>
+        <button onclick="testAPI()">API Test</button>
+        <button onclick="testCSS()">CSS Test</button>
+        <button onclick="createTestWidget()">Test Widget Oluştur</button>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Debug Bilgileri</h3>
+        <pre id="debug-info">Yükleniyor...</pre>
+    </div>
+
+    <script>
+        let logs = [];
+        
+        // Console.log'u yakala
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            logs.push({type: 'log', message: args.join(' '), time: new Date().toLocaleTimeString()});
+            updateLogs();
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            logs.push({type: 'error', message: args.join(' '), time: new Date().toLocaleTimeString()});
+            updateLogs();
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            logs.push({type: 'warn', message: args.join(' '), time: new Date().toLocaleTimeString()});
+            updateLogs();
+            originalWarn.apply(console, args);
+        };
+        
+        function updateLogs() {
+            const logsDiv = document.getElementById('console-logs');
+            if (logs.length === 0) {
+                logsDiv.innerHTML = '<div class="info">Henüz log yok</div>';
+                return;
+            }
+            
+            const recentLogs = logs.slice(-10); // Son 10 log
+            logsDiv.innerHTML = recentLogs.map(log => 
+                `<div class="${log.type} status">[${log.time}] ${log.message}</div>`
+            ).join('');
+        }
+        
+        function clearLogs() {
+            logs = [];
+            updateLogs();
+        }
+        
+        async function checkExtension() {
+            const statusDiv = document.getElementById('extension-status');
+            
+            try {
+                // Chrome extension API'sinin var olup olmadığını kontrol et
+                if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    statusDiv.innerHTML = '<div class="success">✅ Chrome Extension API mevcut</div>';
+                    
+                    // Extension ID'yi al
+                    try {
+                        const extensionId = chrome.runtime.id;
+                        statusDiv.innerHTML += `<div class="info">Extension ID: ${extensionId}</div>`;
+                    } catch (e) {
+                        statusDiv.innerHTML += '<div class="warning">Extension ID alınamadı</div>';
+                    }
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Chrome Extension API bulunamadı</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Hata: ${error.message}</div>`;
+            }
+        }
+        
+        async function checkWidget() {
+            const statusDiv = document.getElementById('extension-status');
+            
+            const widget = document.getElementById('weather-widget-extension');
+            if (widget) {
+                statusDiv.innerHTML = '<div class="success">✅ Widget DOM\'da bulundu</div>';
+                statusDiv.innerHTML += `<div class="info">Widget class: ${widget.className}</div>`;
+                statusDiv.innerHTML += `<div class="info">Widget style: ${widget.style.cssText}</div>`;
+                statusDiv.innerHTML += `<div class="info">Widget position: ${widget.getBoundingClientRect().top}, ${widget.getBoundingClientRect().left}</div>`;
+            } else {
+                statusDiv.innerHTML = '<div class="error">❌ Widget DOM\'da bulunamadı</div>';
+                statusDiv.innerHTML += `<div class="info">Body children count: ${document.body.children.length}</div>`;
+            }
+        }
+        
+        function forceCreateWidget() {
+            // Manuel widget oluştur
+            const existingWidget = document.getElementById('weather-widget-extension');
+            if (existingWidget) {
+                existingWidget.remove();
+            }
+            
+            const widget = document.createElement('div');
+            widget.id = 'weather-widget-extension';
+            widget.style.cssText = `
+                position: fixed !important;
+                top: 20px !important;
+                right: 20px !important;
+                z-index: 2147483647 !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                border-radius: 12px !important;
+                padding: 20px !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+                font-family: system-ui, sans-serif !important;
+                font-size: 14px !important;
+                color: #333 !important;
+                min-width: 300px !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            `;
+            
+            widget.innerHTML = `
+                <div style="text-align: center; position: relative;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">🌤️</div>
+                    <div style="font-weight: 600; margin-bottom: 8px; font-size: 18px;">Debug Widget</div>
+                    <div style="font-size: 14px; color: #666; margin-bottom: 12px;">Manuel olarak oluşturuldu</div>
+                    <div style="font-size: 12px; color: #888;">Test başarılı!</div>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="position: absolute; top: -10px; right: -10px; background: #ff4444; color: white; border: none; 
+                                   border-radius: 50%; width: 30px; height: 30px; font-size: 16px; cursor: pointer; 
+                                   display: flex; align-items: center; justify-content: center;">×</button>
+                </div>
+            `;
+            
+            document.body.appendChild(widget);
+            console.log('🔧 Manuel widget oluşturuldu');
+        }
+        
+        function createTestWidget() {
+            forceCreateWidget();
+        }
+        
+        async function testStorage() {
+            try {
+                if (typeof chrome !== 'undefined' && chrome.storage) {
+                    const result = await chrome.storage.local.get(['widgetSettings']);
+                    console.log('Storage test başarılı:', result);
+                } else {
+                    console.log('Chrome storage API mevcut değil');
+                }
+            } catch (error) {
+                console.error('Storage test hatası:', error);
+            }
+        }
+        
+        async function testAPI() {
+            try {
+                const response = await fetch('https://api.openweathermap.org/data/2.5/weather?q=Istanbul&appid=1ab5083c1ad45e73e3a6fecc3f343f32&units=metric&lang=tr');
+                const data = await response.json();
+                console.log('API test başarılı:', data.name, data.main.temp + '°C');
+            } catch (error) {
+                console.error('API test hatası:', error);
+            }
+        }
+        
+        function testCSS() {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'widget.css';
+            link.onload = () => console.log('CSS test başarılı');
+            link.onerror = () => console.error('CSS test hatası');
+            document.head.appendChild(link);
+        }
+        
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debug-info');
+            const info = {
+                'Page URL': window.location.href,
+                'User Agent': navigator.userAgent.substring(0, 100) + '...',
+                'Chrome Extension API': typeof chrome !== 'undefined' && chrome.runtime ? 'Mevcut' : 'Mevcut değil',
+                'Document Ready State': document.readyState,
+                'Body Children Count': document.body.children.length,
+                'Widget in DOM': document.getElementById('weather-widget-extension') ? 'Var' : 'Yok',
+                'Time': new Date().toLocaleString()
+            };
+            
+            debugInfo.textContent = JSON.stringify(info, null, 2);
+        }
+        
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🟢 Debug sayfası yüklendi');
+            updateDebugInfo();
+            checkExtension();
+            
+            // 3 saniye sonra widget kontrol et
+            setTimeout(() => {
+                checkWidget();
+            }, 3000);
+            
+            // Her 5 saniyede debug bilgilerini güncelle
+            setInterval(updateDebugInfo, 5000);
+        });
+        
+        // Sayfa yüklendikten sonra widget var mı kontrol et
+        setTimeout(() => {
+            console.log('Widget kontrol ediliyor...');
+            checkWidget();
+        }, 2000);
+        
+        setTimeout(() => {
+            console.log('Son widget kontrolü...');
+            checkWidget();
+        }, 5000);
+    </script>
+</body>
+</html>
+

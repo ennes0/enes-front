@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Widget Test</title>
+</head>
+<body>
+    <h1>Weather Widget Test Sayfası</h1>
+    <p>Bu sayfada weather widget görünmeli.</p>
+    
+    <script>
+        // Test script
+        console.log('Test sayfası yüklendi');
+        
+        // 3 saniye sonra widget var mı kontrol et
+        setTimeout(() => {
+            const widget = document.getElementById('weather-widget-extension');
+            if (widget) {
+                console.log('✅ Widget bulundu:', widget);
+                console.log('Widget styles:', widget.style.cssText);
+                console.log('Widget classList:', widget.classList.toString());
+            } else {
+                console.log('❌ Widget bulunamadı');
+                console.log('Body children:', document.body.children);
+            }
+        }, 3000);
+        
+        // 5 saniye sonra tekrar kontrol et
+        setTimeout(() => {
+            const widget = document.getElementById('weather-widget-extension');
+            console.log('5 saniye sonra widget durumu:', !!widget);
+        }, 5000);
+    </script>
+</body>
+</html>
