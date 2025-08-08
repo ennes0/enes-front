@@ -5,6 +5,8 @@ import { TextureLoader } from 'three';
 import * as THREE from 'three';
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import gsap from 'gsap';
 import {
   Box,
@@ -23,10 +25,13 @@ import {
   Paper,
   Button,
   IconButton,
+  Badge,
 } from '@mui/material';
 import enhancedMovieService from '../services/enhancedMovieService';
+import favoriteLocationsService from '../services/favoriteLocationsService';
 import LocationCard from './LocationCard';
 import WaterFillingLoader from './WaterFillingLoader';
+import FavoritesPanel from './FavoritesPanel';
 
 // 🔍 MOVIE SEARCH COMPONENT
 function MovieSearchBox({ allLocations, onMovieSelect, onClearSearch }) {
@@ -34,7 +39,6 @@ function MovieSearchBox({ allLocations, onMovieSelect, onClearSearch }) {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Film arama fonksiyonu - TMDb Search API ile gerçek arama
   const searchMovies = async (query) => {
     if (!query || query.length < 2) {
       setSearchResults([]);
@@ -47,24 +51,19 @@ function MovieSearchBox({ allLocations, onMovieSelect, onClearSearch }) {
       console.log('🔍 Starting TMDb search for:', query);
       console.log('🏠 Available movie IDs in allLocations:', [...new Set(allLocations.map(loc => loc.movieId))].sort((a,b) => a-b));
       
-      // İlk olarak TMDb'den film araması yap
       const tmdbSearchResults = await enhancedMovieService.searchMovies(query);
       console.log('🎬 TMDb search returned:', tmdbSearchResults.length, 'results');
       console.log('🎬 TMDb search results:', tmdbSearchResults.map(m => ({ id: m.id, title: m.title, year: m.year })));
       
-      // Arama sonuçlarını bizim lokasyon verilerimiz ile eşleştir
       const matchedMovies = [];
       
-      // Her TMDb sonucu için lokasyon verilerimizde karşılığını bul
       tmdbSearchResults.forEach(tmdbMovie => {
-        // TMDb movie ID'si ile eşleşen lokasyonları bul
         const movieLocations = allLocations.filter(location => 
           location.movieId === tmdbMovie.id
         );
         
         console.log(`🔍 Checking TMDb movie: ${tmdbMovie.title} (ID: ${tmdbMovie.id}) - Found ${movieLocations.length} locations`);
         
-        // Eğer bu film için lokasyonumuz varsa sonuçlara ekle
         if (movieLocations.length > 0) {
           console.log(`✅ Adding ${tmdbMovie.title} to search results with ${movieLocations.length} locations`);
           matchedMovies.push({
@@ -441,20 +440,15 @@ function CinematicSearchCamera({ targetLocation, onComplete }) {
     if (targetLocation && controlsRef.current) {
       console.log('🎬 Starting cinematic search transition to:', targetLocation.name);
       
-      // Disable user controls during cinematic movement
       controlsRef.current.enabled = false;
       
-      // Convert coordinates to 3D position
       const [x, y, z] = latLngTo3D(targetLocation.lat, targetLocation.lng, 2);
       
-      // Calculate optimal camera position for dramatic reveal
       const targetPosition = {
         x: x * 3.5,
         y: y * 3.5 + 1,
         z: z * 3.5
-      };
-      
-      // Create GSAP timeline for smooth cinematic movement
+      };      
       const timeline = gsap.timeline();
       
       timeline.to(camera.position, {
@@ -466,19 +460,14 @@ function CinematicSearchCamera({ targetLocation, onComplete }) {
         onUpdate: () => {
           controlsRef.current?.update();
         },
-        onComplete: () => {
-          console.log('🎬 Cinematic search transition completed');
-          
-          // Re-enable user controls
+        onComplete: () => { 
           controlsRef.current.enabled = true;
           
-          // Call completion callback
           if (onComplete) {
             setTimeout(onComplete, 500);
           }
         }
       });
-      
       return () => {
         timeline.kill();
       };
@@ -764,6 +753,10 @@ const GeoFilmMain = () => {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchTarget, setSearchTarget] = useState(null);
 
+  // ❤️ FAVORITES STATE
+  const [showFavoritesPanel, setShowFavoritesPanel] = useState(false);
+  const [favoritesCount, setFavoritesCount] = useState(0);
+
   // Toggle search box visibility
   const toggleSearchBox = () => {
     setShowSearchBox(!showSearchBox);
@@ -792,6 +785,29 @@ const GeoFilmMain = () => {
     setIsSearchMode(false);
   };
 
+  // ❤️ FAVORITES HANDLERS
+  const toggleFavoritesPanel = () => {
+    setShowFavoritesPanel(!showFavoritesPanel);
+  };
+
+  const updateFavoritesCount = () => {
+    const count = favoriteLocationsService.getFavoritesCount();
+    setFavoritesCount(count);
+  };
+
+  const handleFavoriteLocationSelect = (location) => {
+    console.log('❤️ Favorite location selected, flying to location:', location.name);
+    
+    // Set cinematic target for smooth camera transition
+    setSearchTarget(location);
+    setIsSearchMode(true);
+    
+    // Auto-trigger location click after camera movement
+    setTimeout(() => {
+      handleLocationClick(location);
+    }, 3200);
+  };
+
   // TMDb verilerini yükle
   useEffect(() => {
     const loadBasicData = () => {
@@ -814,6 +830,9 @@ const GeoFilmMain = () => {
     };
 
     loadBasicData();
+    
+    // Load favorites count
+    updateFavoritesCount();
   }, []);
 
   const handleLocationClick = async (location) => {
@@ -1036,6 +1055,38 @@ const GeoFilmMain = () => {
             >
               <SearchIcon />
             </IconButton>
+
+            {/* ❤️ FAVORITES TOGGLE BUTTON */}
+            <Badge 
+              badgeContent={favoritesCount} 
+              color="error"
+              sx={{
+                '& .MuiBadge-badge': {
+                  background: '#ff6b6b',
+                  color: 'white',
+                  fontSize: '0.7rem',
+                  height: '18px',
+                  minWidth: '18px',
+                }
+              }}
+            >
+              <IconButton
+                onClick={toggleFavoritesPanel}
+                sx={{
+                  color: showFavoritesPanel ? 'error.main' : 'text.secondary',
+                  background: showFavoritesPanel ? 'rgba(255, 107, 107, 0.1)' : 'transparent',
+                  border: showFavoritesPanel ? '1px solid rgba(255, 107, 107, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+                  '&:hover': {
+                    background: 'rgba(255, 107, 107, 0.1)',
+                    color: 'error.main',
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <FavoriteIcon />
+              </IconButton>
+            </Badge>
           </Box>
         </Fade>
 
@@ -1136,6 +1187,7 @@ const GeoFilmMain = () => {
           movies={selectedLocation?.movies || []}
           open={cardOpen}
           onClose={closeCard}
+          onFavoritesChange={updateFavoritesCount}
         />
       )}
 
@@ -1151,6 +1203,15 @@ const GeoFilmMain = () => {
           </div>
         </Fade>
       )}
+
+      {/* ❤️ FAVORITES PANEL */}
+      <FavoritesPanel
+        open={showFavoritesPanel}
+        onClose={() => setShowFavoritesPanel(false)}
+        onLocationSelect={handleFavoriteLocationSelect}
+        allLocations={allLocations}
+        onFavoritesChange={updateFavoritesCount}
+      />
 
       {/* Instructions */}
       <Fade in timeout={3000}>

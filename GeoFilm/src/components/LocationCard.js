@@ -39,12 +39,14 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import GroupIcon from '@mui/icons-material/Group';
 import ImageIcon from '@mui/icons-material/Image';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import motion from '../utils/motion';
+import favoriteLocationsService from '../services/favoriteLocationsService';
 
 // Yardımcı fonksiyonlar
 const formatCurrency = (amount) => {
@@ -68,7 +70,7 @@ const formatProfit = (revenue, budget) => {
   };
 };
 
-const LocationCard = ({ location, movies, open, onClose }) => {
+const LocationCard = ({ location, movies, open, onClose, onFavoritesChange }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [slideDirection, setSlideDirection] = useState("right");
@@ -76,6 +78,9 @@ const LocationCard = ({ location, movies, open, onClose }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [liked, setLiked] = useState(false);
   const [currentMovieIndex, setCurrentMovieIndex] = useState(0);
+  
+  // ❤️ Favorites state
+  const [isFavorite, setIsFavorite] = useState(false);
   
   // Mevcut film
   const movie = movies && movies.length > 0 ? movies[currentMovieIndex] : null;
@@ -200,6 +205,63 @@ const LocationCard = ({ location, movies, open, onClose }) => {
       });
     }
   }, [location, isMobile]);
+
+  // ❤️ Check favorite status when location changes
+  useEffect(() => {
+    if (location) {
+      const favoriteStatus = favoriteLocationsService.isLocationFavorite(location);
+      setIsFavorite(favoriteStatus);
+    }
+  }, [location]);
+
+  // ❤️ Handle favorite toggle
+  const handleToggleFavorite = () => {
+    console.log('❤️ Toggle favorite clicked for location:', location?.name);
+    console.log('❤️ Current favorite status:', isFavorite);
+    
+    if (!location) {
+      console.log('❌ No location data available');
+      return;
+    }
+
+    if (isFavorite) {
+      // Remove from favorites
+      const success = favoriteLocationsService.removeFromFavorites(location);
+      if (success) {
+        setIsFavorite(false);
+        console.log('❤️ Removed from favorites:', location.name);
+      }
+    } else {
+      // Add to favorites with movie info
+      const locationWithMovieInfo = {
+        ...location,
+        movieTitle: movie?.title || 'Unknown Movie',
+        movieYear: movie?.year || 'Unknown',
+        basicMovieInfo: movie ? {
+          title: movie.title,
+          year: movie.year,
+          poster: movie.poster,
+          director: movie.director,
+          rating: movie.rating
+        } : null
+      };
+      
+      console.log('❤️ Adding to favorites with data:', locationWithMovieInfo);
+      const success = favoriteLocationsService.addToFavorites(locationWithMovieInfo);
+      if (success) {
+        setIsFavorite(true);
+        console.log('❤️ Added to favorites:', location.name);
+      }
+    }
+
+    // Notify parent component to update favorites count
+    if (onFavoritesChange) {
+      console.log('❤️ Updating favorites count...');
+      onFavoritesChange();
+    } else {
+      console.log('⚠️ onFavoritesChange callback not provided');
+    }
+  };
   
   // Don't render if missing data
   if (!location || !movie) {
@@ -564,6 +626,32 @@ const LocationCard = ({ location, movies, open, onClose }) => {
                 </IconButton>
               </Tooltip>
 
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {/* ❤️ FAVORITE BUTTON */}
+              <Tooltip title={isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}>
+                <IconButton
+                  onClick={handleToggleFavorite}
+                  sx={{
+                    backgroundColor: isFavorite ? 'rgba(255, 107, 107, 0.2)' : 'rgba(0, 0, 0, 0.7)',
+                    color: isFavorite ? '#ff6b6b' : 'white',
+                    width: 42,
+                    height: 42,
+                    backdropFilter: 'blur(10px)',
+                    border: isFavorite ? '2px solid #ff6b6b' : '1px solid rgba(255, 255, 255, 0.2)',
+                    '&:hover': {
+                      backgroundColor: isFavorite ? 'rgba(255, 107, 107, 0.3)' : 'rgba(255, 107, 107, 0.2)',
+                      color: '#ff6b6b',
+                      transform: 'scale(1.1)',
+                      border: '2px solid #ff6b6b',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  {isFavorite ? <FavoriteIcon sx={{ fontSize: 20 }} /> : <FavoriteBorderIcon sx={{ fontSize: 20 }} />}
+                </IconButton>
+              </Tooltip>
+
+              {/* Close Button */}
               <Tooltip title="Kapat">
                 <IconButton
                   onClick={onClose}
@@ -583,6 +671,7 @@ const LocationCard = ({ location, movies, open, onClose }) => {
                   <CloseIcon sx={{ fontSize: 20 }} />
                 </IconButton>
               </Tooltip>
+            </Box>
             </Box>
           </Box>
 
